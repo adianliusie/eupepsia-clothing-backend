@@ -1,0 +1,11 @@
+version = 0.1
+
+[dev.deploy.parameters]
+stack_name = "eupepsia-orders-dev"
+resolve_s3 = true
+s3_prefix = "eupepsia-orders-dev"
+region = "us-east-1"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = false
+# Secrets are passed on the command line, not stored here:
+#   sam deploy --config-env dev --parameter-overrides "MongoDbUri=<uri> DbName=eupepsia-dev"

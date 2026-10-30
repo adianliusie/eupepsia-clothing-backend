@@ -1,0 +1,5 @@
+aws-lambda-powertools[tracer]==3.17.0
+mongoengine==0.29.1
+pydantic==2.11.7
+pydantic_settings==2.10.1
+python-dotenv==1.1.1

@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Eupepsia internal order tracking API
+
+Parameters:
+  MongoDbUri:
+    Type: String
+    NoEcho: true
+  DbName:
+    Type: String
+    Default: eupepsia-dev
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 512
+
+Resources:
+  PythonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: !Sub "${AWS::StackName}-python-layer"
+      ContentUri: services_modules/.
+      CompatibleRuntimes:
+        - python3.12
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.app.lambda_handler
+      CodeUri: services/.
+      Runtime: python3.12
+      Architectures:
+        - x86_64
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+      Environment:
+        Variables:
+          MONGODB_URI: !Ref MongoDbUri
+          DB_NAME: !Ref DbName
+      Layers:
+        - !Ref PythonLayer
+
+Outputs:
+  ApiUrl:
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
