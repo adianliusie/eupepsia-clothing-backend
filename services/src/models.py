@@ -14,7 +14,7 @@ from mongoengine import (
 )
 from mongoengine.connection import get_db
 
-from src.catalogue import Status
+from src.catalogue import STATUS_RANK, Status
 
 
 def now() -> datetime:
@@ -65,6 +65,9 @@ class Order(Document):
     order_number = StringField(required=True)
     customer_id = ObjectIdField(required=True)
     status = StringField(required=True, choices=[s.value for s in Status], default=Status.PENDING.value)
+    # Position of `status` in the workflow so sorting by status follows it. Set in save(); a bulk
+    # QuerySet.update(status=...) must set it too (STATUS_RANK), and scripts/migrate_status.py backfills it.
+    status_rank = IntField()
     items = EmbeddedDocumentListField(OrderItem, required=True)
     total = FloatField(required=True)
     notes = StringField()
@@ -73,6 +76,7 @@ class Order(Document):
 
     def save(self, *args, **kwargs):
         self.updated_at = now()
+        self.status_rank = STATUS_RANK[self.status]
         return super().save(*args, **kwargs)
 
     @staticmethod

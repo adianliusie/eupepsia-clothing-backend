@@ -2,6 +2,8 @@
 Prices in USD. Edit here when the line sheet changes.
 `type` groups garments for the order form; `variant` distinguishes styles within a type (None when a type has one style)."""
 
+from __future__ import annotations
+
 from enum import Enum
 
 
@@ -21,11 +23,15 @@ class Size(str, Enum):
 
 
 class Status(str, Enum):
+    # Declaration order is the workflow order; sorting by status follows it (see STATUS_RANK).
     PENDING = "pending"
     PROCESSING = "processing"
     COMPLETE = "complete"
-    SENT = "sent"
+    DELIVERED = "delivered"
     CANCELLED = "cancelled"
+
+
+STATUS_RANK = {s.value: i for i, s in enumerate(Status)}
 
 
 class Style(str, Enum):
@@ -60,31 +66,32 @@ class Style(str, Enum):
 GARMENT_SIZES = [Size.XS, Size.S, Size.M, Size.L, Size.XL, Size.XXL]
 UNI_SIZE = [Size.ONE]
 
+# length: body length from the line sheet; shawls are length × width from the size guide. None where unknown.
 PRODUCTS: dict[Style, dict] = {
-    Style.CT_TOP_25_SS: dict(type="Top", variant="Short sleeve", name="Top, straight — short sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=170),
-    Style.CT_TUNIC_30_SS: dict(type="Tunic", variant="Straight, short sleeve", name="Tunic, straight — short sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=188),
-    Style.CT_TUNIC_30_LS: dict(type="Tunic", variant="Straight, long sleeve", name="Tunic, straight — long sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=197),
-    Style.CT_TUNIC_ALINE_30_LS: dict(type="Tunic", variant="A-line, long sleeve", name="Tunic, A-line — long sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=206),
-    Style.CT_DRESS_37_SS: dict(type="Dress", variant="Straight, short sleeve", name="Dress, straight — short sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=233),
-    Style.CT_DRESS_ALINE_37_LS: dict(type="Dress", variant="A-line, long sleeve", name="Dress, A-line — long sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=242),
-    Style.CT_CARDIGAN_31: dict(type="Cardigan", variant="31\"", name='Cardigan 31"', fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=206),
-    Style.CT_CARDIGAN_38: dict(type="Cardigan", variant="38\"", name='Cardigan 38"', fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=242),
-    Style.CT_HOODIE: dict(type="Hoodie", variant=None, name="Hoodie", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=260),
-    Style.CT_PANTS_WIDE: dict(type="Pants", variant="Wide leg", name="Pants, wide leg", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=224),
-    Style.CT_PANTS_JOGGER: dict(type="Pants", variant="Jogger", name="Pants, jogger", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=224),
-    Style.CT_SHAWL_JERSEY_LONG: dict(type="Shawl", variant="Jersey, long", name="Shawl, jersey — long", fabric=Fabric.COTTON, sizes=UNI_SIZE, price=296),
-    Style.CT_SHAWL_JERSEY_SHORT: dict(type="Shawl", variant="Jersey, short", name="Shawl, jersey — short", fabric=Fabric.COTTON, sizes=UNI_SIZE, price=197),
-    Style.CT_SHAWL_BIRDSEYE_LONG: dict(type="Shawl", variant="Bird's eye, long", name="Shawl, bird's eye — long", fabric=Fabric.COTTON, sizes=UNI_SIZE, price=296),
-    Style.CT_SHAWL_BIRDSEYE_SHORT: dict(type="Shawl", variant="Bird's eye, short", name="Shawl, bird's eye — short", fabric=Fabric.COTTON, sizes=UNI_SIZE, price=197),
-    Style.WL_TUNIC_30_LS: dict(type="Tunic", variant="Straight, long sleeve", name="Tunic, straight — long sleeve", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=278),
-    Style.WL_TUNIC_ALINE_30_LS: dict(type="Tunic", variant="A-line, long sleeve", name="Tunic, A-line — long sleeve", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=278),
-    Style.WL_DRESS_37_LS: dict(type="Dress", variant="Straight, long sleeve", name="Dress, straight — long sleeve", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=305),
-    Style.WL_DRESS_ALINE_37_LS: dict(type="Dress", variant="A-line, long sleeve", name="Dress, A-line — long sleeve", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=314),
-    Style.WL_CARDIGAN_31: dict(type="Cardigan", variant="31\"", name='Cardigan 31"', fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=251),
-    Style.WL_HOODIE: dict(type="Hoodie", variant=None, name="Hoodie", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=278),
-    Style.WL_PANTS_WIDE: dict(type="Pants", variant="Wide leg", name="Pants, wide leg", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=260),
-    Style.WL_PANTS_JOGGER: dict(type="Pants", variant="Jogger", name="Pants, jogger", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=260),
-    Style.WL_SHAWL_JERSEY: dict(type="Shawl", variant="Jersey", name="Shawl, jersey — 80 x 35", fabric=Fabric.WOOL, sizes=UNI_SIZE, price=287),
+    Style.CT_TOP_25_SS: dict(type="Top", variant="Short sleeve", length='25"', name="Top, straight — short sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=170),
+    Style.CT_TUNIC_30_SS: dict(type="Tunic", variant="Straight, short sleeve", length='30"', name="Tunic, straight — short sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=188),
+    Style.CT_TUNIC_30_LS: dict(type="Tunic", variant="Straight, long sleeve", length='30"', name="Tunic, straight — long sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=197),
+    Style.CT_TUNIC_ALINE_30_LS: dict(type="Tunic", variant="A-line, long sleeve", length='30"', name="Tunic, A-line — long sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=206),
+    Style.CT_DRESS_37_SS: dict(type="Dress", variant="Straight, short sleeve", length='37"', name="Dress, straight — short sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=233),
+    Style.CT_DRESS_ALINE_37_LS: dict(type="Dress", variant="A-line, long sleeve", length='37"', name="Dress, A-line — long sleeve", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=242),
+    Style.CT_CARDIGAN_31: dict(type="Cardigan", variant=None, length='31"', name="Cardigan", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=206),
+    Style.CT_CARDIGAN_38: dict(type="Cardigan", variant=None, length='38"', name="Cardigan", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=242),
+    Style.CT_HOODIE: dict(type="Hoodie", variant=None, length=None, name="Hoodie", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=260),
+    Style.CT_PANTS_WIDE: dict(type="Pants", variant="Wide leg", length=None, name="Pants, wide leg", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=224),
+    Style.CT_PANTS_JOGGER: dict(type="Pants", variant="Jogger", length=None, name="Pants, jogger", fabric=Fabric.COTTON, sizes=GARMENT_SIZES, price=224),
+    Style.CT_SHAWL_JERSEY_LONG: dict(type="Shawl", variant="Jersey, long", length='106 × 38"', name="Shawl, jersey — long", fabric=Fabric.COTTON, sizes=UNI_SIZE, price=296),
+    Style.CT_SHAWL_JERSEY_SHORT: dict(type="Shawl", variant="Jersey, short", length='80 × 35"', name="Shawl, jersey — short", fabric=Fabric.COTTON, sizes=UNI_SIZE, price=197),
+    Style.CT_SHAWL_BIRDSEYE_LONG: dict(type="Shawl", variant="Bird's eye, long", length='106 × 38"', name="Shawl, bird's eye — long", fabric=Fabric.COTTON, sizes=UNI_SIZE, price=296),
+    Style.CT_SHAWL_BIRDSEYE_SHORT: dict(type="Shawl", variant="Bird's eye, short", length='80 × 35"', name="Shawl, bird's eye — short", fabric=Fabric.COTTON, sizes=UNI_SIZE, price=197),
+    Style.WL_TUNIC_30_LS: dict(type="Tunic", variant="Straight, long sleeve", length='30"', name="Tunic, straight — long sleeve", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=278),
+    Style.WL_TUNIC_ALINE_30_LS: dict(type="Tunic", variant="A-line, long sleeve", length='30"', name="Tunic, A-line — long sleeve", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=278),
+    Style.WL_DRESS_37_LS: dict(type="Dress", variant="Straight, long sleeve", length='37"', name="Dress, straight — long sleeve", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=305),
+    Style.WL_DRESS_ALINE_37_LS: dict(type="Dress", variant="A-line, long sleeve", length='37"', name="Dress, A-line — long sleeve", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=314),
+    Style.WL_CARDIGAN_31: dict(type="Cardigan", variant=None, length='31"', name="Cardigan", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=251),
+    Style.WL_HOODIE: dict(type="Hoodie", variant=None, length=None, name="Hoodie", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=278),
+    Style.WL_PANTS_WIDE: dict(type="Pants", variant="Wide leg", length=None, name="Pants, wide leg", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=260),
+    Style.WL_PANTS_JOGGER: dict(type="Pants", variant="Jogger", length=None, name="Pants, jogger", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=260),
+    Style.WL_SHAWL_JERSEY: dict(type="Shawl", variant="Jersey", length='80 × 35"', name="Shawl, jersey", fabric=Fabric.WOOL, sizes=UNI_SIZE, price=287),
 }
 
 
@@ -193,7 +200,7 @@ def catalogue_json() -> dict:
     """Everything the order form needs to render its dropdowns."""
     return {
         "products": [
-            {"style": s.value, "name": p["name"], "type": p["type"], "variant": p["variant"],
+            {"style": s.value, "name": p["name"], "type": p["type"], "variant": p["variant"], "length": p["length"],
              "fabric": p["fabric"].value, "sizes": [z.value for z in p["sizes"]], "price": p["price"]}
             for s, p in PRODUCTS.items()
         ],

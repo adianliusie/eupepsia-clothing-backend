@@ -48,7 +48,7 @@ def list_orders():
     status=pending,processing (default) | all      q=<name or order number>
     customer_id=<id>   order_number=<prefix>        type=Cardigan   fabric=wool
     style=HBS-WL-C31[,HBS-CT-C31]   colour=029278   size=M       from=2026-10-01  to=2026-10-31
-    sort=-created_at (created_at|order_number|total|status, leading - = desc)
+    sort=-created_at (created_at|order_number|total|status, leading - = desc; status sorts in workflow order)
     page=1  page_size=50 (max 200)
     """
     p = router.current_event.query_string_parameters or {}
@@ -123,9 +123,12 @@ def list_orders():
     except ValueError:
         return error(400, "page and page_size must be integers")
 
+    # Status sorts in workflow order (pending → … → cancelled), not alphabetically.
+    order_field = sort.replace("status", "status_rank")
+
     qs = Order.objects(query)
     total = qs.count()
-    orders = list(qs.order_by(sort, "-_id").skip((page - 1) * page_size).limit(page_size))
+    orders = list(qs.order_by(order_field, "-_id").skip((page - 1) * page_size).limit(page_size))
     customers = _customers_for(orders)
     return success(200, {
         "items": [o.to_json(customers.get(o.customer_id)) for o in orders],
