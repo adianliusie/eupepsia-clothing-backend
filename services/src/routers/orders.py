@@ -47,7 +47,7 @@ def list_orders():
 
     status=pending,processing (default) | all      q=<name or order number>
     customer_id=<id>   order_number=<prefix>        type=Cardigan   fabric=wool
-    style=HBS-WL-C31   colour=029278   size=M       from=2026-10-01  to=2026-10-31
+    style=HBS-WL-C31[,HBS-CT-C31]   colour=029278   size=M       from=2026-10-01  to=2026-10-31
     sort=-created_at (created_at|order_number|total|status, leading - = desc)
     page=1  page_size=50 (max 200)
     """
@@ -85,10 +85,11 @@ def list_orders():
 
     # --- items: style / type / fabric / colour / size. Two or more => must be on the same item.
     item: dict = {}
-    if style := p.get("style"):
-        if style not in {s.value for s in PRODUCTS}:
-            return error(400, f"Unknown style '{style}'")
-        item["style"] = style
+    if codes := [s for s in p.get("style", "").split(",") if s]:
+        known = {s.value for s in PRODUCTS}
+        if bad := [s for s in codes if s not in known]:
+            return error(400, f"Unknown style '{bad[0]}'")
+        item["style"] = codes[0] if len(codes) == 1 else {"$in": codes}
     elif p.get("type") or p.get("fabric"):
         codes = styles_matching(p.get("type"), p.get("fabric"))
         if not codes:
