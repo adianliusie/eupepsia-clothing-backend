@@ -33,7 +33,7 @@ Dev API: https://4uqxfo1oof.execute-api.us-east-1.amazonaws.com/Prod (stack `eup
 | Method | Path | Body |
 |---|---|---|
 | GET | `/catalogue` | – (products, colours, sizes, statuses for the form) |
-| POST | `/orders` | `{first_name, last_name, items: [{style, colour, size, quantity}], notes?}` |
+| POST | `/orders` | `{first_name, last_name, items: [{style, colour, size, quantity, note?}], notes?}` |
 | GET | `/orders` | query, all optional: `status` (csv, default `pending,processing`, or `all`), `q` (name or order no.), `customer_id`, `order_number` (prefix), `type`, `fabric`, `style` (csv), `colour`, `size`, `from`/`to` (YYYY-MM-DD), `sort` (`-created_at`, `order_number`, `total`, `status`), `page`, `page_size` (≤200). Returns `{items, page, page_size, total}`. Two or more item filters must match the same item. |
 | GET | `/orders/{id}` | – |
 | PATCH | `/orders/{id}/status` | `{status}` |

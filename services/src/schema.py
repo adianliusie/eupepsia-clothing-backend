@@ -10,6 +10,7 @@ class OrderItemIn(BaseModel):
     colour: str
     size: Size
     quantity: int = Field(ge=1)
+    note: str | None = Field(default=None, max_length=500)  # e.g. an alteration for this piece
 
     @model_validator(mode="after")
     def check_against_catalogue(self):

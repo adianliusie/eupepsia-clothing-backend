@@ -61,6 +61,7 @@ class Style(str, Enum):
     WL_PANTS_WIDE = "HBS-WL-PANW"
     WL_PANTS_JOGGER = "HBS-WL-PANJ"
     WL_SHAWL_JERSEY = "HBS-WL-SHJ"
+    WL_BEANIE = "HBS-WL-B"
 
 
 GARMENT_SIZES = [Size.XS, Size.S, Size.M, Size.L, Size.XL, Size.XXL]
@@ -92,6 +93,7 @@ PRODUCTS: dict[Style, dict] = {
     Style.WL_PANTS_WIDE: dict(type="Pants", variant="Wide leg", length=None, name="Pants, wide leg", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=260),
     Style.WL_PANTS_JOGGER: dict(type="Pants", variant="Jogger", length=None, name="Pants, jogger", fabric=Fabric.WOOL, sizes=GARMENT_SIZES, price=260),
     Style.WL_SHAWL_JERSEY: dict(type="Shawl", variant="Jersey", length='80 × 35"', name="Shawl, jersey", fabric=Fabric.WOOL, sizes=UNI_SIZE, price=287),
+    Style.WL_BEANIE: dict(type="Beanie", variant=None, length=None, name="Beanie", fabric=Fabric.WOOL, sizes=UNI_SIZE, price=71),
 }
 
 

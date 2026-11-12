@@ -28,7 +28,8 @@ def create_order(body: CreateOrderIn):
     customer = User.find_or_create(body.first_name, body.last_name)
     items = [
         OrderItem(style=i.style.value, colour=i.colour, size=i.size.value,
-                  quantity=i.quantity, unit_price=PRODUCTS[i.style]["price"])
+                  quantity=i.quantity, unit_price=PRODUCTS[i.style]["price"],
+                  note=(i.note or "").strip() or None)
         for i in body.items
     ]
     order = Order(

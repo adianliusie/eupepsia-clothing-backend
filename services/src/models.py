@@ -54,6 +54,7 @@ class OrderItem(EmbeddedDocument):
     size = StringField(required=True)
     quantity = IntField(required=True, min_value=1)
     unit_price = FloatField(required=True)   # snapshotted from PRODUCTS at order time
+    note = StringField()                     # optional, per item
 
 
 class Order(Document):
@@ -97,7 +98,7 @@ class Order(Document):
             "items": [
                 {"style": i.style, "colour": i.colour, "size": i.size,
                  "quantity": i.quantity, "unit_price": i.unit_price,
-                 "line_total": i.unit_price * i.quantity}
+                 "line_total": i.unit_price * i.quantity, "note": i.note}
                 for i in self.items
             ],
             "total": self.total,
